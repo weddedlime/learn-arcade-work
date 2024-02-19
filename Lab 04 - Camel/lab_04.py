@@ -1,64 +1,90 @@
 import arcade
 import random
 
-# Constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-DESERT_COLOR = arcade.color.SANDY_BROWN
-CAMEL_COLOR = arcade.color.BROWN_NOSE
-NATIVES_COLOR = arcade.color.RED
-NIGHTFALL_COLOR = arcade.color.BLACK
 
 class CamelGame(arcade.Window):
-    def __init__(self, width, height):
-        super().__init__(width, height, "Camel Game")
+    def __init__(self):
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, "Camel Game")
 
-        # Initialize game variables
+        # Game variables
+        self.done = False
         self.miles_traveled = 0
         self.thirst = 0
         self.camel_tiredness = 0
         self.natives_distance = -20
         self.drinks_in_canteen = 3
-        self.food_supply = 5
-        self.nightfall = False
-
-        # Set up colors for objects
-        self.desert_color = DESERT_COLOR
-        self.camel_color = CAMEL_COLOR
-        self.natives_color = NATIVES_COLOR
-        self.nightfall_color = NIGHTFALL_COLOR
 
     def on_draw(self):
-        # Render the game graphics
         arcade.start_render()
 
-        # Draw desert background
-        arcade.draw_lrtb_rectangle_filled(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, self.desert_color)
+        # Display game information
+        arcade.draw_text("A. Drink from your canteen.", 50, 500, arcade.color.WHITE, 16)
+        arcade.draw_text("B. Ahead moderate speed.", 50, 470, arcade.color.WHITE, 16)
+        arcade.draw_text("C. Ahead full speed.", 50, 440, arcade.color.WHITE, 16)
+        arcade.draw_text("D. Stop for the night.", 50, 410, arcade.color.WHITE, 16)
+        arcade.draw_text("E. Status check.", 50, 380, arcade.color.WHITE, 16)
+        arcade.draw_text("Q. Quit.", 50, 350, arcade.color.WHITE, 16)
 
-        # Draw camel
-        arcade.draw_rectangle_filled(100 + self.miles_traveled, SCREEN_HEIGHT // 2, 50, 30, self.camel_color)
-
-        # Draw natives
-        arcade.draw_rectangle_filled(100 + self.miles_traveled + self.natives_distance, SCREEN_HEIGHT // 2,
-                                     30, 30, self.natives_color)
-
-        # Draw nightfall if it's night
-        if self.nightfall:
-            arcade.draw_lrtb_rectangle_filled(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, self.nightfall_color)
+        arcade.draw_text(f"Miles traveled: {self.miles_traveled}", 50, 300, arcade.color.WHITE, 16)
+        arcade.draw_text(f"Drinks in canteen: {self.drinks_in_canteen}", 50, 270, arcade.color.WHITE, 16)
+        arcade.draw_text(f"The natives are {self.natives_distance + self.miles_traveled} miles behind you.", 50, 240, arcade.color.WHITE, 16)
 
     def update(self, delta_time):
-        # Game logic goes here
+        if not self.done:
+            user_choice = input("What is your choice? ")
 
-        # Check for nightfall
-        if random.randint(1, 10) == 1:
-            self.nightfall = True
+            if user_choice.upper() == "Q":
+                self.done = True
+                print("You quit the game.")
+            elif user_choice.upper() == "E":
+                self.status_check()
+            elif user_choice.upper() == "D":
+                self.stop_for_night()
+            elif user_choice.upper() == "C":
+                self.ahead_full_speed()
+            elif user_choice.upper() == "B":
+                self.ahead_moderate_speed()
+            elif user_choice.upper() == "A":
+                self.drink_from_canteen()
+            else:
+                print("Invalid choice. Try again.")
 
-        # Check for game conditions (e.g., winning, losing, etc.)
+    def status_check(self):
+        print(f"\nMiles traveled: {self.miles_traveled}")
+        print(f"Drinks in canteen: {self.drinks_in_canteen}")
+        print(f"The natives are {self.natives_distance + self.miles_traveled} miles behind you.\n")
 
-    def on_key_press(self, key, modifiers):
-        # Handle user input (e.g., drink from canteen, move ahead, etc.)
-        pass
+    def stop_for_night(self):
+        print("You stopped and rested. Your camel is happy.")
+        self.camel_tiredness = 0
+        self.natives_distance += random.randint(7, 14)
+
+    def ahead_full_speed(self):
+        distance = random.randint(10, 20)
+        self.miles_traveled += distance
+        self.thirst += 1
+        self.camel_tiredness += random.randint(1, 3)
+        self.natives_distance += random.randint(7, 14)
+        print(f"You traveled {distance} miles.")
+
+    def ahead_moderate_speed(self):
+        distance = random.randint(5, 12)
+        self.miles_traveled += distance
+        self.thirst += 1
+        self.camel_tiredness += 1
+        self.natives_distance += random.randint(7, 14)
+        print(f"You traveled {distance} miles.")
+
+    def drink_from_canteen(self):
+        if self.drinks_in_canteen > 0:
+            self.drinks_in_canteen -= 1
+            self.thirst = 0
+            print("You drank from your canteen.")
+        else:
+            print("Error: No drinks left in the canteen.")
 
 if __name__ == "__main__":
-    game = CamelGame(SCREEN_WIDTH, SCREEN_HEIGHT)
+    game = CamelGame()
     arcade.run()
